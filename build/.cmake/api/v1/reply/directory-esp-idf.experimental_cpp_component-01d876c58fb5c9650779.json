@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "esp-idf/experimental_cpp_component",
+		"source" : "/home/den-k/esp/esp-idf/examples/cxx/experimental/experimental_cpp_component"
+	}
+}
