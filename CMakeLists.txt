@@ -9,4 +9,4 @@ set(EXTRA_COMPONENT_DIRS $ENV{IDF_PATH}/examples/common_components/protocol_exam
                          $ENV{IDF_PATH}/examples/cxx/experimental/esp_mqtt_cxx/components)
 
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(mqtt_tcp_cxx)
+project(mqtt_device)
