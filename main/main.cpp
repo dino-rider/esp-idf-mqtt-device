@@ -79,7 +79,7 @@ extern "C" void app_main(void)
     .lwt_msg_len = strlen("lost")
   };
   session.last_will = lastwill;
-  session.keepalive = 10;
+  session.keepalive = 120;
   session.disable_clean_session = 0;
   config.session = session;
 
