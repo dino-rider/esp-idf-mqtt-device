@@ -17,7 +17,7 @@ class LedOutput;
 class IotDevice: public MqttCaller
 {
 private:
-  string mainTopic = "den-k-89-house/test-device";
+  string mainTopic = std::string{CONFIG_MQTT_MAIN_TOPIC};
   MyClient &client;
   std::vector< Sensor* > sensors;
   std::vector< Output* > outputs;

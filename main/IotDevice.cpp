@@ -34,7 +34,7 @@ void IotDevice::cOnConnectCallback()
   {
     output->subscribe();
   }
-  client.upublish("den-k-89-house/test-device/status", "ready", idf::mqtt::QoS::AtLeastOnce, true);
+  client.upublish(std::string{CONFIG_MQTT_MAIN_TOPIC}+"/status", "ready", idf::mqtt::QoS::AtLeastOnce, true);
 }
 
 void IotDevice::cMessageReceivedCallback(const string &topicStr, const string &message)
