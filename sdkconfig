@@ -129,10 +129,13 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
-# Example Configuration
+# MQTT TEST SETUP
 #
-CONFIG_BROKER_URL="mqtt://test.mosquitto.org"
-# end of Example Configuration
+CONFIG_MQTT_BROKER_URL="mqtt://test.mosquitto.org"
+CONFIG_MQTT_BROKER_PORT=1883
+CONFIG_MQTT_MAIN_TOPIC="den-k-89-house/test-device"
+CONFIG_MQTT_USERNAME="den_k_89_0003"
+# end of MQTT TEST SETUP
 
 #
 # Example Connection Configuration

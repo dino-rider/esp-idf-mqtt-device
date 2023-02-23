@@ -1,9 +1,26 @@
-menu "Example Configuration"
+menu "MQTT TEST SETUP"
 
-    config BROKER_URL
+    config MQTT_BROKER_URL
         string "Broker URL"
-        default "mqtt://mqtt.eclipse.org"
+        default "mqtt://test.mosquitto.org"
         help
             URL of the broker to connect to
 
+    config MQTT_BROKER_PORT
+        int "Broker port"
+        default 1883
+        help
+            URL of the broker to connect to
+
+    config MQTT_MAIN_TOPIC
+        string "Main topic"
+        default "den-k-89-house/test-device"
+        help
+            URL of the broker to connect to
+
+    config MQTT_USERNAME
+        string "UserName"
+        default "den_k_89_0003"
+        help
+            URL of the broker to connect to            
 endmenu

@@ -2,10 +2,43 @@
 #include "protocol_examples_common.h"
 #include "esp_log.h"
 #include "IotDevice.hpp"
-#include "config.hpp"
 
-// constexpr auto *TAG = "MQTT_DEVICE";
 bool connected_flag = false;
+
+// onboard LED
+GPIO_Output gpio(GPIONum(2));
+
+// Blink LED when no connection
+// works on disconnect too
+void Blink_led(void *arg)
+{
+    for(;;)
+    {
+    while (!connected_flag)
+    {
+        gpio.set_high();
+        vTaskDelay(500/ portTICK_RATE_MS);
+        gpio.set_low();
+        vTaskDelay(500/ portTICK_RATE_MS);
+    }
+    while (connected_flag)
+    {
+    vTaskDelay(500/ portTICK_RATE_MS);
+    }
+    }
+}
+
+void Read_sensors(void *device)
+{
+    for(;;)
+    {
+        static_cast<IotDevice*>(device)->process();
+        vTaskDelay(2000/ portTICK_RATE_MS);
+    }
+}
+
+TaskHandle_t ReadTaskHandle = NULL;
+TaskHandle_t BlinkTaskHandle = NULL;
 
 extern "C" void app_main(void)
 {
@@ -15,33 +48,58 @@ extern "C" void app_main(void)
 
   esp_log_level_set("*", ESP_LOG_INFO);
   esp_log_level_set("MQTT_CLIENT", ESP_LOG_VERBOSE);
-  esp_log_level_set("MQTT_EXAMPLE", ESP_LOG_VERBOSE);
-  esp_log_level_set("TRANSPORT_TCP", ESP_LOG_VERBOSE);
-  esp_log_level_set("TRANSPORT_SSL", ESP_LOG_VERBOSE);
-  esp_log_level_set("TRANSPORT", ESP_LOG_VERBOSE);
+  esp_log_level_set("MQTT_EXAMPLE", ESP_LOG_ERROR);
+  esp_log_level_set("TRANSPORT_TCP", ESP_LOG_ERROR);
+  esp_log_level_set("TRANSPORT_SSL", ESP_LOG_ERROR);
+  esp_log_level_set("TRANSPORT", ESP_LOG_ERROR);
   esp_log_level_set("OUTBOX", ESP_LOG_VERBOSE);
 
   ESP_ERROR_CHECK(nvs_flash_init());
   ESP_ERROR_CHECK(esp_netif_init());
   ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-  // xTaskCreatePinnedToCore(Demo_Task, "Demo_Task", 4096, NULL, 10, &myTaskHandle, 1);
+  xTaskCreatePinnedToCore(Blink_led, "Blink_led", 4096, NULL, 10, &BlinkTaskHandle, 1);
 
-  ESP_ERROR_CHECK(example_connect());
+  printf("LastWill topic: %s, message is lost length is %d \n",(std::string{CONFIG_MQTT_MAIN_TOPIC}+std::string{"/status"}).c_str(), strlen("lost"));
 
   mqtt::BrokerConfiguration broker{
-      .address = {mqtt::URI{std::string{CONFIG_BROKER_URL}}},
+      .address = {mqtt::URI{std::string{CONFIG_MQTT_BROKER_URL}},
+                .port = CONFIG_MQTT_BROKER_PORT},
       .security = mqtt::Insecure{}};
   mqtt::ClientCredentials credentials{};
+  // credentials.username = std::string{CONFIG_MQTT_USERNAME}.c_str();
+  credentials.client_id = std::string{CONFIG_MQTT_USERNAME};
   mqtt::Configuration config{};
+  mqtt::Session session{};
+  mqtt::LastWill lastwill{
+    .lwt_topic = (std::string{CONFIG_MQTT_MAIN_TOPIC}+std::string{"/status"}).c_str(),
+    .lwt_msg = "lost",
+    .lwt_qos = 1,
+    .lwt_retain = 1,
+    .lwt_msg_len = strlen("lost")
+  };
+  session.last_will = lastwill;
+  session.keepalive = 120;
+  session.disable_clean_session = 0;
+  config.session = session;
+
+  
 
   MyClient client{broker, credentials, config};
   IotDevice device{client};
+  LedOutput onboardLed{&device, "light_0", 2};
+  WifiStrengthSensor wifiSignal{&device, "wifisignal"};
+  device.addOutput(&onboardLed);
+  device.addSensor(&wifiSignal);
+  client.setDevice(&device);
+
+  ESP_ERROR_CHECK(example_connect());
+  xTaskCreatePinnedToCore(Read_sensors, "Read_sensors", 4096, &device, 15, &ReadTaskHandle, 0);
+
 
   while (true)
   {
-    device.process();
-    constexpr TickType_t xDelay = 500 / portTICK_PERIOD_MS;
+    constexpr TickType_t xDelay = 1000 / portTICK_PERIOD_MS;
     vTaskDelay(xDelay);
   }
 }

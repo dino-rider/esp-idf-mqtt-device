@@ -1,5 +1,4 @@
 #pragma once
-
 // #include <cstdlib>
 #include <map>
 #include <string>
@@ -12,30 +11,29 @@ namespace mqtt = idf::mqtt;
 
 extern bool connected_flag;
 
-class MyClient; // forward declaration
+class MyClient;
 
 // Caller interface to inherit and call back object methods
-
 class MqttCaller
 {
 public:
-  virtual void cVoidCallback(){};
-  virtual void cMessageReceivedCallback(const string &topicStr, const string &message){};
+  virtual void cOnConnectCallback(){};
+  virtual void cMessageReceivedCallback(const string &topicStr, const string &message){printf("caller: %s", message.c_str());};
 };
-
 
 class MyClient final : public mqtt::Client
 {
 public:
   using mqtt::Client::Client;
-  void usubscribe(const string &topicStr, MqttCaller* caller, int qos);
-  void upublish(const string &topicStr,  const string &message, bool retain);
+  void setDevice(MqttCaller *_device){ device = _device; };
+  void usubscribe(const string topicStr, MqttCaller* caller, int qos);
+  void upublish(const string &topicStr,  const string &message, mqtt::QoS qos, bool retain);
 
 private:
-  std::map <std::string, MqttCaller*> topic_callbacks;
+  MqttCaller *device;
+  std::map <string, MqttCaller*> topic_callbacks;
   void on_connected(esp_mqtt_event_handle_t const event) override;
+  void on_subscribed(esp_mqtt_event_handle_t const event){};
   void on_data(esp_mqtt_event_handle_t const event) override;
   void on_disconnected(esp_mqtt_event_handle_t const event) override;
-  mqtt::Filter messages{"$SYS/broker/messages/received"};
-  mqtt::Filter sent_load{"$SYS/broker/load/+/sent"};
 };
