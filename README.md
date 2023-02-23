@@ -18,6 +18,7 @@ How to install:
 1. Clone repository to esp folder.
 2. run  "idf.py menuconfig"
 3. Configure Wifi and MQTT settings.
+!!! Enable CONFIG_COMPILER_CXX_EXCEPTIONS !!!
 4. run "idf.py build"
 5. run "idf.py -p [device port] flash
 6. pray that it compiles (it should, it's using unmodified esp-idf 4.4)
