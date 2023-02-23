@@ -73,12 +73,12 @@ void Output::cMessageReceivedCallback(const string &topicStr, const string &mess
 WifiStrengthSensor::WifiStrengthSensor(IotDevice *_device, string _topic): Sensor(_device,_topic)
 {
   printf("wifi signal topic: %s \n", topic.c_str());
-  esp_wifi_sta_get_ap_info(&ap);  
+   
 }
 
 void WifiStrengthSensor::read()
 {
-  
+  esp_wifi_sta_get_ap_info(&ap); 
   int reading = ap.rssi;
   if (abs(value-reading)>5)
   {

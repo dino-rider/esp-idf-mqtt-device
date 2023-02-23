@@ -33,7 +33,7 @@ void Read_sensors(void *device)
     for(;;)
     {
         static_cast<IotDevice*>(device)->process();
-        vTaskDelay(2000/ portTICK_RATE_MS);
+        vTaskDelay(3000/ portTICK_RATE_MS);
     }
 }
 
