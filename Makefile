@@ -8,5 +8,5 @@ EXTRA_COMPONENT_DIRS := $(IDF_PATH)/examples/common_components/protocol_examples
 EXTRA_COMPONENT_DIRS += $(IDF_PATH)/examples/cxx/experimental/esp_mqtt_cxx/components
 EXTRA_COMPONENT_DIRS += $(IDF_PATH)/examples/cxx/experimental/experimental_cpp_component
 
-CXXFLAGS += -std=gnu++17
+CXXFLAGS += -std=gnu++20
 include $(IDF_PATH)/make/project.mk

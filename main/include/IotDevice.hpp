@@ -6,7 +6,6 @@
 
 constexpr auto *TAG = "MQTT_DEVICE";
 
-
 using namespace idf;
 using namespace std;
 
@@ -15,7 +14,6 @@ class Sensor;
 class Output;
 class LedOutput;
 
-
 class IotDevice: public MqttCaller
 {
 private:
@@ -23,14 +21,18 @@ private:
   MyClient &client;
   std::vector< Sensor* > sensors;
   std::vector< Output* > outputs;
+
   // set up peripherials
-  LedOutput onboardLed{this, "light_0", 2};
+  
+
 public:
   IotDevice(MyClient &_client);
   MyClient* getClient(){return &client;};
-  void cVoidCallback();
+  void addSensor(Sensor *_sensor);
+  void addOutput(Output *_output);
+  void cOnConnectCallback();
   void cMessageReceivedCallback(const string &topicStr, const string &message);
-  void publish(string topic, string message, bool retain);
+  void publish(string topic, string message, idf::mqtt::QoS qos, bool retain);
   void process();
   int  getStatus();
   string getMainTopic(){return mainTopic;};
