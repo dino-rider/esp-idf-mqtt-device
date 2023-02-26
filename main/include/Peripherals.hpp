@@ -50,7 +50,9 @@ class WifiStrengthSensor: public Sensor
 {
 private:
   wifi_ap_record_t ap;
-  int value = 0;  
+  int value = 0;
+  int percent = 0;
+  int clamp(int value, int min, int max);
 public:
   WifiStrengthSensor(IotDevice *_device, string _topic);
   void read() override;

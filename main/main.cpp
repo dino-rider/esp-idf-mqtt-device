@@ -26,6 +26,7 @@ void Blink_led(void *arg)
     vTaskDelay(500/ portTICK_RATE_MS);
     }
     }
+    vTaskDelete(NULL);
 }
 
 void Read_sensors(void *device)
@@ -35,6 +36,7 @@ void Read_sensors(void *device)
         static_cast<IotDevice*>(device)->process();
         vTaskDelay(3000/ portTICK_RATE_MS);
     }
+    vTaskDelete(NULL);
 }
 
 TaskHandle_t ReadTaskHandle = NULL;
@@ -61,7 +63,7 @@ extern "C" void app_main(void)
   xTaskCreatePinnedToCore(Blink_led, "Blink_led", 4096, NULL, 10, &BlinkTaskHandle, 1);
 
   printf("LastWill topic: %s, message is lost length is %d \n",(std::string{CONFIG_MQTT_MAIN_TOPIC}+std::string{"/status"}).c_str(), strlen("lost"));
-
+  std::string lastwilltopic = (std::string{CONFIG_MQTT_MAIN_TOPIC}+std::string{"/status"});
   mqtt::BrokerConfiguration broker{
       .address = {mqtt::URI{std::string{CONFIG_MQTT_BROKER_URL}},
                 .port = CONFIG_MQTT_BROKER_PORT},
@@ -72,18 +74,17 @@ extern "C" void app_main(void)
   mqtt::Configuration config{};
   mqtt::Session session{};
   mqtt::LastWill lastwill{
-    .lwt_topic = (std::string{CONFIG_MQTT_MAIN_TOPIC}+std::string{"/status"}).c_str(),
+    .lwt_topic = lastwilltopic,
     .lwt_msg = "lost",
     .lwt_qos = 1,
     .lwt_retain = 1,
-    .lwt_msg_len = strlen("lost")
+    .lwt_msg_len = 4,
+
   };
   session.last_will = lastwill;
   session.keepalive = 120;
   session.disable_clean_session = 0;
   config.session = session;
-
-  
 
   MyClient client{broker, credentials, config};
   IotDevice device{client};

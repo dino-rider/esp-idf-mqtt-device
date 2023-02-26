@@ -76,20 +76,28 @@ WifiStrengthSensor::WifiStrengthSensor(IotDevice *_device, string _topic): Senso
    
 }
 
+int WifiStrengthSensor::clamp(int value, int min, int max)
+{
+  if (value<min) return min;
+  if (value>max) return max;
+  return value;
+}
+
 void WifiStrengthSensor::read()
 {
-  esp_wifi_sta_get_ap_info(&ap); 
+  esp_wifi_sta_get_ap_info(&ap);
   int reading = ap.rssi;
   if (abs(value-reading)>5)
   {
     value = reading;
+    percent = clamp(2*(100 + value),0,100);
     onChange();
   }
 }
 
 void WifiStrengthSensor::onChange()
 {
-  publish(std::to_string(value),mqtt::QoS::AtMostOnce ,true);
+  publish(std::to_string(percent),mqtt::QoS::AtMostOnce ,true);
 }
 
 
