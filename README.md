@@ -18,7 +18,7 @@ Features:
  
    onBoardLed: [main_topic]/light_0 (commands: "ON", "OFF")
    
-   Wifi rssi : [main_topic]/wifisignal (it publishes when the value changes by 5 or more points in 2 seconds]
+   Wifi signal strength : [main_topic]/wifisignal (it publishes when the value changes by 5 or more points in 2 seconds]
    
    Device status: [main_topic]/status - it publishes "ready" on connection, and leaves a "lost" message on ungraceful disconnect thanks to last will message.
 
