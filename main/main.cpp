@@ -100,7 +100,7 @@ extern "C" void app_main(void)
 
   while (true)
   {
-    constexpr TickType_t xDelay = 1000 / portTICK_PERIOD_MS;
+    constexpr TickType_t xDelay = 500 / portTICK_PERIOD_MS;
     vTaskDelay(xDelay);
   }
 }
