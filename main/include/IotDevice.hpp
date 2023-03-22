@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include "MqttClient.hpp"
-// #include "Peripherals.hpp"
+#include "Node.hpp"
 
 constexpr auto *TAG = "MQTT_DEVICE";
 
@@ -11,7 +11,7 @@ using namespace std;
 
 class MyClient;
 // calling Nodes Sensors here !
-class Sensor;
+class Node;
 
 // class Output;
 // class LedOutput;
@@ -33,8 +33,8 @@ public:
   void cOnConnectCallback();
   void cMessageReceivedCallback(const string &topicStr, const string &message);
   void publish(string topic, string message, idf::mqtt::QoS qos, bool retain);
-  void publishError(const string &message);
-  void publishNotification(const string &message);
+  void publishError(string message);
+  void publishNotification(string message);
   void process();
   int  getStatus();
   string getMainTopic(){return mainTopic;};

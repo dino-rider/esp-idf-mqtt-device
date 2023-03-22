@@ -24,7 +24,7 @@ void Node::readSettings()
 
 Node::Node(IotDevice *_device, string _topic): device(_device)
 {
-  setTopic(_topic;)
+  setTopic(_topic);
 }
 
 void Node::read()

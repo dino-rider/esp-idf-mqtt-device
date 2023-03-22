@@ -69,11 +69,10 @@ extern "C" void app_main(void)
                 .port = CONFIG_MQTT_BROKER_PORT},
       .security = mqtt::Insecure{}
       };
-  mqtt::ClientCredentials credentials{
-    .client_id = std::string{CONFIG_MQTT_USERNAME};
-    .username = std::string{CONFIG_MQTT_USERNAME};
-    .authentication = mqtt::Password{std::string{CONFIG_MQTT_PASSWORD};}
-    };
+  mqtt::ClientCredentials credentials{};
+    credentials.client_id = std::string{CONFIG_MQTT_USERNAME};
+    credentials.username = std::string{CONFIG_MQTT_USERNAME};
+    credentials.authentication = mqtt::Password{std::string{CONFIG_MQTT_PASSWORD}};
   mqtt::Configuration config{};
   mqtt::Session session{};
   mqtt::LastWill lastwill{

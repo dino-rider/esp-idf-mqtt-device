@@ -2,7 +2,7 @@ menu "MQTT TEST SETUP"
 
     config MQTT_BROKER_URL
         string "Broker URL"
-        default "mqtt://test.mosquitto.org"
+        default "mqtt://cloud.2smart.com"
         help
             URL of the broker to connect to
 
@@ -14,13 +14,20 @@ menu "MQTT TEST SETUP"
 
     config MQTT_USERNAME
         string "MQTT Username hash"
-        default "1dc2534cb9b3fb16dcd16de7a6986b7b9a18e071955de709b158f7b9e2b8fa98"
+        default "mqtt-login"
         help
-            MQTT username (email) sha256 hash
+            MQTT username (email) sha256 hash from connection Info
 
     config MQTT_PASSWORD
         string "Password"
-        default "den_k_89_0003"
+        default "mqtt-password"
         help
-            Password or token            
+            Password or token from connection Info
+
+    config MQTT_DEVICE_ID
+        string "Device ID"
+        default "mqtt-device-id"
+        help
+            Device ID from connection Info
+
 endmenu

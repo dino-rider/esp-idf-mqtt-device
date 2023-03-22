@@ -21,15 +21,15 @@ protected:
   void storeSettings();
   void readSettings();
 public:
-  Peripheral(IotDevice *_device, string _topic);
+  Node(IotDevice *_device, string _topic);
   void publish(string message,mqtt::QoS qos, bool retain);
   void init();
   void setTopic(string _topic);
   string getTopic();
-  virtual void read(){};
+  virtual void read();
   virtual void onChange(){};
   virtual void execute(string command) {printf(command.c_str());};
-  virtual void cMessageReceivedCallback(const string &topicStr, const string &message){} override;
+  virtual void cMessageReceivedCallback(const string &topicStr, const string &message) override;
 };
 
 // class WifiStrengthSensor: public Sensor

@@ -17,7 +17,7 @@ void IotDevice::cOnConnectCallback()
   {
     node->init();
   }
-  client.upublish(std::string{CONFIG_MQTT_MAIN_TOPIC}+"/status", "ready", idf::mqtt::QoS::AtLeastOnce, true);
+  client.upublish(mainTopic+"/ready", "ready", idf::mqtt::QoS::AtLeastOnce, true);
 }
 
 void IotDevice::cMessageReceivedCallback(const string &topicStr, const string &message)
@@ -29,14 +29,14 @@ void IotDevice::publish(string topic, string message, idf::mqtt::QoS qos, bool r
   client.upublish(topic, message, qos, retain);
 }
 
-void IotDevice::publishError(string topic, string message, idf::mqtt::QoS qos, bool retain)
+void IotDevice::publishError(string message)
 {
-  client.upublish(topic, message, qos, retain);
+  client.upublish(errorTopic, message, idf::mqtt::QoS::AtLeastOnce, false);
 }
 
-void IotDevice::publishNotification(string topic, string message, idf::mqtt::QoS qos, bool retain)
+void IotDevice::publishNotification(string message)
 {
-  client.upublish(topic, message, qos, retain);
+  client.upublish(notificationTopic, message, idf::mqtt::QoS::AtLeastOnce, false);
 }
 
 
