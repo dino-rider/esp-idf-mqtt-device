@@ -1,15 +1,25 @@
 #include "Node.hpp"
 #include "IotDevice.hpp"
 
-void Node::publish(const string message, mqtt::QoS qos, bool retain)
+
+Node::Node(IotDevice *_device, string _topic, string _name, string _type): device(_device), name(_name), type(_type)
 {
- device->publish(topic, message, qos, retain);
+  setTopic(_topic);
+}
+
+void Node::publish(string _topic,const string message, mqtt::QoS qos, bool retain)
+{
+ device->publish(_topic, message, qos, retain);
 }
 
 void Node::init()
 {
   // device->getClient()->usubscribe(topic, static_cast<MqttCaller*>(this), 0);
-  device->getClient()->usubscribe(topic, this, 0);
+  // client->usubscribe(topic, this, 0);
+  publish(topic+"$name", name, idf::mqtt::QoS::AtLeastOnce, true);
+  publish(topic+"$state", state, idf::mqtt::QoS::AtLeastOnce, true);
+  publish(topic+"$type", type, idf::mqtt::QoS::AtLeastOnce, true);
+  publish(topic+"$properties", "property_1, property_2", idf::mqtt::QoS::AtLeastOnce, true); // iterate over properties to get their list
 }
 
 void Node::storeSettings()
@@ -22,10 +32,6 @@ void Node::readSettings()
 
 }
 
-Node::Node(IotDevice *_device, string _topic): device(_device)
-{
-  setTopic(_topic);
-}
 
 void Node::read()
 {
@@ -34,7 +40,7 @@ void Node::read()
 
 void Node::setTopic(string _topic)
 {
-  topic = device->getMainTopic()+"/"+_topic;
+  topic = device->getMainTopic()+_topic+"/";
 }
 
 string Node::getTopic()

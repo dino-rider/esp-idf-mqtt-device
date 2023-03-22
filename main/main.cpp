@@ -90,9 +90,9 @@ extern "C" void app_main(void)
   MyClient client{broker, credentials, config};
   IotDevice device{client};
   // LedOutput onboardLed{&device, "light_0", 2};
+  Node test_node{&device, "test_node", "Some sensor", "sensor"};
   // WifiStrengthSensor wifiSignal{&device, "wifisignal"};
-  // device.addOutput(&onboardLed);
-  // device.addSensor(&wifiSignal);
+  device.addNode(&test_node);
   client.setDevice(&device);
 
   ESP_ERROR_CHECK(example_connect());

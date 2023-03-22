@@ -17,12 +17,15 @@ class Node: public MqttCaller
 {
 protected:
   IotDevice *device;
+  string name;
+  string state;
+  string type;
   string topic;
   void storeSettings();
   void readSettings();
 public:
-  Node(IotDevice *_device, string _topic);
-  void publish(string message,mqtt::QoS qos, bool retain);
+  Node(IotDevice *_device, string _topic, string _name, string _type);
+  void publish(string _topic, string message,mqtt::QoS qos, bool retain);
   void init();
   void setTopic(string _topic);
   string getTopic();
