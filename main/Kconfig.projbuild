@@ -10,17 +10,17 @@ menu "MQTT TEST SETUP"
         int "Broker port"
         default 1883
         help
-            URL of the broker to connect to
-
-    config MQTT_MAIN_TOPIC
-        string "Main topic"
-        default "den-k-89-house/test-device"
-        help
-            URL of the broker to connect to
+            port of the broker to connect to
 
     config MQTT_USERNAME
-        string "UserName"
+        string "MQTT Username hash"
+        default "1dc2534cb9b3fb16dcd16de7a6986b7b9a18e071955de709b158f7b9e2b8fa98"
+        help
+            MQTT username (email) sha256 hash
+
+    config MQTT_PASSWORD
+        string "Password"
         default "den_k_89_0003"
         help
-            URL of the broker to connect to            
+            Password or token            
 endmenu

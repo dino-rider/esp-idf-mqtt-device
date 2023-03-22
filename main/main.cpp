@@ -62,15 +62,18 @@ extern "C" void app_main(void)
 
   xTaskCreatePinnedToCore(Blink_led, "Blink_led", 4096, NULL, 10, &BlinkTaskHandle, 1);
 
-  printf("LastWill topic: %s, message is lost length is %d \n",(std::string{CONFIG_MQTT_MAIN_TOPIC}+std::string{"/status"}).c_str(), strlen("lost"));
-  std::string lastwilltopic = (std::string{CONFIG_MQTT_MAIN_TOPIC}+std::string{"/status"});
+  // printf("LastWill topic: %s, message is lost length is %d \n",(std::string{CONFIG_MQTT_MAIN_TOPIC}+std::string{"/status"}).c_str(), strlen("lost"));
+  std::string lastwilltopic = (std::string{CONFIG_MQTT_USERNAME}+"/"+std::string{CONFIG_MQTT_DEVICE_ID}+"/$state");
   mqtt::BrokerConfiguration broker{
       .address = {mqtt::URI{std::string{CONFIG_MQTT_BROKER_URL}},
                 .port = CONFIG_MQTT_BROKER_PORT},
-      .security = mqtt::Insecure{}};
-  mqtt::ClientCredentials credentials{};
-  // credentials.username = std::string{CONFIG_MQTT_USERNAME}.c_str();
-  credentials.client_id = std::string{CONFIG_MQTT_USERNAME};
+      .security = mqtt::Insecure{}
+      };
+  mqtt::ClientCredentials credentials{
+    .client_id = std::string{CONFIG_MQTT_USERNAME};
+    .username = std::string{CONFIG_MQTT_USERNAME};
+    .authentication = mqtt::Password{std::string{CONFIG_MQTT_PASSWORD};}
+    };
   mqtt::Configuration config{};
   mqtt::Session session{};
   mqtt::LastWill lastwill{
@@ -79,7 +82,6 @@ extern "C" void app_main(void)
     .lwt_qos = 1,
     .lwt_retain = 1,
     .lwt_msg_len = 4,
-
   };
   session.last_will = lastwill;
   session.keepalive = 120;
@@ -88,10 +90,10 @@ extern "C" void app_main(void)
 
   MyClient client{broker, credentials, config};
   IotDevice device{client};
-  LedOutput onboardLed{&device, "light_0", 2};
-  WifiStrengthSensor wifiSignal{&device, "wifisignal"};
-  device.addOutput(&onboardLed);
-  device.addSensor(&wifiSignal);
+  // LedOutput onboardLed{&device, "light_0", 2};
+  // WifiStrengthSensor wifiSignal{&device, "wifisignal"};
+  // device.addOutput(&onboardLed);
+  // device.addSensor(&wifiSignal);
   client.setDevice(&device);
 
   ESP_ERROR_CHECK(example_connect());
