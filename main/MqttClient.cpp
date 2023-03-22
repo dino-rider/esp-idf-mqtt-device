@@ -3,7 +3,7 @@
 void MyClient::usubscribe(const string topicStr, MqttCaller* caller, int qos)
 {
     mqtt::Filter f{topicStr.c_str()};
-    subscribe(f.get());
+    subscribe(f.get()); // add qos later if necessary
     topic_callbacks[topicStr] = caller;
 }
 

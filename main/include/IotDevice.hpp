@@ -10,23 +10,23 @@ using namespace idf;
 using namespace std;
 
 class MyClient;
-// calling Nodes Sensors here !
 class Node;
-
-// class Output;
-// class LedOutput;
 
 class IotDevice: public MqttCaller
 {
 private:
-  string mainTopic = std::string{CONFIG_MQTT_USERNAME}+"/"+std::string{CONFIG_MQTT_DEVICE_ID};
+  string mainTopic = std::string{CONFIG_MQTT_USERNAME}+"/sweet-home/"+std::string{CONFIG_MQTT_DEVICE_ID}+"/";
   string errorTopic = std::string{CONFIG_MQTT_USERNAME}+"/errors";
   string notificationTopic = std::string{CONFIG_MQTT_USERNAME}+"/notifications";
   MyClient &client;
   std::vector< Node* > nodes;
-  // set up peripherials
 
 public:
+  string device_name = "Test device";
+  string fw_name = "1678446122462726";
+  string fw_version = "1";
+  string implementation = "Test device";
+  string mac_adress = "30-b8-3d-01-f6-7f";
   IotDevice(MyClient &_client);
   MyClient* getClient(){return &client;};
   void addNode(Node *_sensor);

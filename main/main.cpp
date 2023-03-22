@@ -34,7 +34,7 @@ void Read_sensors(void *device)
     for(;;)
     {
         static_cast<IotDevice*>(device)->process();
-        vTaskDelay(3000/ portTICK_RATE_MS);
+        vTaskDelay(10000/ portTICK_RATE_MS);
     }
     vTaskDelete(NULL);
 }
@@ -63,7 +63,7 @@ extern "C" void app_main(void)
   xTaskCreatePinnedToCore(Blink_led, "Blink_led", 4096, NULL, 10, &BlinkTaskHandle, 1);
 
   // printf("LastWill topic: %s, message is lost length is %d \n",(std::string{CONFIG_MQTT_MAIN_TOPIC}+std::string{"/status"}).c_str(), strlen("lost"));
-  std::string lastwilltopic = (std::string{CONFIG_MQTT_USERNAME}+"/"+std::string{CONFIG_MQTT_DEVICE_ID}+"/$state");
+  std::string lastwilltopic = (std::string{CONFIG_MQTT_USERNAME}+"/sweet-home/"+std::string{CONFIG_MQTT_DEVICE_ID}+"/$state");
   mqtt::BrokerConfiguration broker{
       .address = {mqtt::URI{std::string{CONFIG_MQTT_BROKER_URL}},
                 .port = CONFIG_MQTT_BROKER_PORT},

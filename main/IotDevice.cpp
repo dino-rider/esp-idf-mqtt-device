@@ -12,12 +12,20 @@ void IotDevice::addNode(Node *_node)
 
 void IotDevice::cOnConnectCallback()
 {
-  printf("Connected");  
+  printf("Connected\n");
+  client.upublish(mainTopic+"$name", device_name, idf::mqtt::QoS::AtLeastOnce, true);
+  client.upublish(mainTopic+"$fw/name", fw_name, idf::mqtt::QoS::AtLeastOnce, true);
+  client.upublish(mainTopic+"$fw/version", fw_version, idf::mqtt::QoS::AtLeastOnce, true);
+  // client.upublish(main_topic+'$localip', "192.168.1.52", idf::mqtt::QoS::AtLeastOnce, true);
+  client.upublish(mainTopic+"$implementation", implementation, idf::mqtt::QoS::AtLeastOnce, true);
+  client.upublish(mainTopic+"$mac", mac_adress, idf::mqtt::QoS::AtLeastOnce, true);
+  client.upublish(mainTopic+"$state", "ready", idf::mqtt::QoS::AtLeastOnce, true);
+  client.upublish(mainTopic+"$heartbeat", "ping", idf::mqtt::QoS::AtLeastOnce, false);
+
   for (Node* node: nodes)
   {
     node->init();
   }
-  client.upublish(mainTopic+"/ready", "ready", idf::mqtt::QoS::AtLeastOnce, true);
 }
 
 void IotDevice::cMessageReceivedCallback(const string &topicStr, const string &message)
@@ -42,7 +50,8 @@ void IotDevice::publishNotification(string message)
 
 void IotDevice::process()
 {
-  // printf("reading input\n");
+  printf("ping broker and reading input\n");
+  client.upublish(mainTopic+"$heartbeat", "ping", idf::mqtt::QoS::AtLeastOnce, false);
   for (Node* node: nodes)
   {
     node->read();
