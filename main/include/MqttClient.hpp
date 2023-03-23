@@ -28,6 +28,9 @@ public:
   void setDevice(MqttCaller *_device){ device = _device; };
   void usubscribe(const string topicStr, MqttCaller* caller, int qos);
   void upublish(const string &topicStr,  const string &message, mqtt::QoS qos, bool retain);
+  // may need to add some way to clear subscriptions on disconnect (!connected_flag)
+  // on reconecct every device resubscribes to their topic
+  void clean_subscriptions(){};
 
 private:
   MqttCaller *device;

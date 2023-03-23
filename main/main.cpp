@@ -87,13 +87,12 @@ extern "C" void app_main(void)
   session.disable_clean_session = 0;
   config.session = session;
 
-  MyClient client{broker, credentials, config};
-  IotDevice device{client};
-  // LedOutput onboardLed{&device, "light_0", 2};
-  Node test_node{&device, "test_node", "Some sensor", "sensor"};
-  // WifiStrengthSensor wifiSignal{&device, "wifisignal"};
-  device.addNode(&test_node);
-  client.setDevice(&device);
+  MyClient* client = new MyClient(broker, credentials, config);
+  IotDevice device {(*client)};
+  Property* test_property = new Property("test_property","prop_id", &device, OPTION, false, true, "integer", "");
+
+  Node* test_node =  new Node{&device, "test_node", "sensor"};
+  client->setDevice(&device);
 
   ESP_ERROR_CHECK(example_connect());
   xTaskCreatePinnedToCore(Read_sensors, "Read_sensors", 4096, &device, 15, &ReadTaskHandle, 0);

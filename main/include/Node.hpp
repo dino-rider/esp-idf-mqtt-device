@@ -1,5 +1,4 @@
 #pragma once
-
 // #include <thread>
 #include <string>
 #include "gpio_cxx.hpp"
@@ -8,10 +7,14 @@
 #include "freertos/task.h"
 #include "esp_wifi.h"
 #include "esp_mqtt.hpp"
+#include "Property.hpp"
+#include "IotDevice.hpp"
+
 
 using namespace std;
 
 class IotDevice;
+class Property;
 
 class Node: public MqttCaller
 {
@@ -23,12 +26,19 @@ protected:
   string topic;
   void storeSettings();
   void readSettings();
+  string getPropertyString(const std::vector <Property*> &props);
+  std::vector< Property* > options;
+  std::vector< Property* > properties;
+  std::vector< Property* > telemetry;
 public:
-  Node(IotDevice *_device, string _topic, string _name, string _type);
+  Node(IotDevice *_device, string _name, string _type);
   void publish(string _topic, string message,mqtt::QoS qos, bool retain);
+  void addProperty(Property *_property);
   void init();
   void setTopic(string _topic);
   string getTopic();
+  string getName(){return name;};
+  IotDevice *getDevice() {return device;}
   virtual void read();
   virtual void onChange(){};
   virtual void execute(string command) {printf(command.c_str());};

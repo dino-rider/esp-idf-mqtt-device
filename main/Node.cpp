@@ -1,10 +1,13 @@
 #include "Node.hpp"
-#include "IotDevice.hpp"
 
 
-Node::Node(IotDevice *_device, string _topic, string _name, string _type): device(_device), name(_name), type(_type)
+Node::Node(IotDevice *_device, string _name, string _type)
 {
-  setTopic(_topic);
+  device =_device;
+  name =_name;
+  type = _type;
+  setTopic(_name);
+  device->addNode(this);
 }
 
 void Node::publish(string _topic,const string message, mqtt::QoS qos, bool retain)
@@ -16,17 +19,77 @@ void Node::init()
 {
   // device->getClient()->usubscribe(topic, static_cast<MqttCaller*>(this), 0);
   // client->usubscribe(topic, this, 0);
+
   publish(topic+"$name", name, idf::mqtt::QoS::AtLeastOnce, true);
   publish(topic+"$state", state, idf::mqtt::QoS::AtLeastOnce, true);
   publish(topic+"$type", type, idf::mqtt::QoS::AtLeastOnce, true);
-  publish(topic+"$properties", "property_1, property_2", idf::mqtt::QoS::AtLeastOnce, true); // iterate over properties to get their list
+  publish(topic+"$properties", getPropertyString(properties), idf::mqtt::QoS::AtLeastOnce, true); // iterate over properties to get their list
+  publish(topic+"$options", getPropertyString(options), idf::mqtt::QoS::AtLeastOnce, true); // iterate over properties to get their list
+  publish(topic+"$telemetry", getPropertyString(telemetry), idf::mqtt::QoS::AtLeastOnce, true); // iterate over properties to get their list
+  if (!properties.empty())
+  {
+    for (Property* property: properties)
+    {
+      property->init();
+    }
+  }
+  if (!options.empty())
+  {
+    for (Property* property: options)
+    {
+      property->init();
+    }
+  }
+  if (!telemetry.empty())
+  {
+  for (Property* property: telemetry)
+  {
+    property->init();
+  }
+  }
 }
 
+string Node::getPropertyString(const std::vector <Property*> &props)
+{
+  string prop_string = "";
+  if (!props.empty())
+  {
+  for (Property* property: props)
+  {
+    prop_string += property->getName()+",";
+  }
+  }
+  return prop_string;
+}
+
+void Node::addProperty(Property *_property)
+{
+  switch (_property->getType())
+  {
+  case OPTION:
+    options.push_back(_property);
+    break;
+
+  case TELEMETRY:
+    telemetry.push_back(_property);
+    break;
+
+  case SENSOR:
+    properties.push_back(_property);
+    break;
+
+  default:
+    break;
+  }
+}
+
+// in the future we might want to store settings on flash
 void Node::storeSettings()
 {
 
 }
 
+// in the future we might want to read settings from flash
 void Node::readSettings()
 {
 

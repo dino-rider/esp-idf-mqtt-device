@@ -8,6 +8,10 @@
 #include "freertos/task.h"
 #include "esp_wifi.h"
 #include "esp_mqtt.hpp"
+#include "IotDevice.hpp"
+#include "Node.hpp"
+
+
 
 using namespace std;
 
@@ -32,55 +36,49 @@ public:
   Property(string name, string id, IotDevice *_device, PROPERTY_TYPE type, bool settable, bool retained,
            string data_type, string _format = "", string _unit = "");
 
-  ~Property() { Serial.printf("Property %s destroyed\r\n", name_.c_str()); }
+  ~Property() { printf("Property %s destroyed\r\n", name.c_str()); }
 
-  virtual bool Init();
-  void publish(string message, mqtt::QoS qos, bool retain);
+  virtual bool init();
+  void publish(string _topic, string message, mqtt::QoS qos, bool retain);
   void subscribe();
   void setTopic(string _topic);
   string getTopic();
   virtual void read();
   virtual void cMessageReceivedCallback(const string &topicStr, const string &message) override;
 
-  string GetValue() const;
-  string GetId() const;
-  PROPERTY_TYPE GetType() const;
-  Node *GetNode() const;
-  Device *GetDevice() const;
+  // string GetValue() const;
 
+  string getName() const {return name;};
+  PROPERTY_TYPE getType() const {return type;};
+  
+  // IotDevice *GetNode() const;
+  // Device *GetDevice() const;
   // bool HasNewValue();
   virtual bool Validate(string value);
   // void ClearError();
-  void SetError(string code, string message);
+  // void SetError(string code, string message);
 
-  void SetValue(string value);
+  // void SetValue(string value);
   // void SetHasNewValue(bool has_new_value);
 
-  virtual void HandleCurrentState();
-  virtual void HandleSettingNewValue();
-
-  void subscribe();
+  // virtual void HandleCurrentState();
+  // virtual void HandleSettingNewValue();
 
 protected:
-  PROPERTY_TYPE type_;
+  // bool has_new_value_ = false;
 
-  bool has_new_value_ = false;
-  bool settable_;
-  bool retained_;
-
-  string name_ = "";
-  string id_ = "";
-  string data_type_ = "";
-  string format_ = "";
-  string unit_ = "";
-  string value_ = "";
-
+  string name;
+  string id;
+  PROPERTY_TYPE type;
+  bool settable;
+  bool retained;
+  string data_type;
+  string format;
+  string unit;
+  string value = "";
   string error_code = "";
   string error_message = "";
-
-protected:
-  IotDevice *device;
-  Node *node;
+  IotDevice *device = nullptr;
+  Node *node = nullptr;
   string topic;
-  Node(IotDevice *_device, string _topic);
 };
