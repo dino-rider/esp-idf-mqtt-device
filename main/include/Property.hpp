@@ -29,17 +29,19 @@ class Property : public MqttCaller
 {
 public:
   // ----------------------------Constructor for Node`s properties
-  Property(string _name, string id, Node *_node, PROPERTY_TYPE type, bool settable, bool retained,
+  Property(string _name, string _id, Node *_node, PROPERTY_TYPE _type, bool _settable, bool _retained,
            string _data_type, string _format = "", string _unit = "");
 
   // ----------------------------Constructor for Device`s properties
-  Property(string name, string id, IotDevice *_device, PROPERTY_TYPE type, bool settable, bool retained,
-           string data_type, string _format = "", string _unit = "");
+  Property(string _name, string _id, IotDevice *_device, PROPERTY_TYPE _type, bool _settable, bool _retained,
+           string _data_type, string _format = "", string _unit = "");
 
   ~Property() { printf("Property %s destroyed\r\n", name.c_str()); }
 
   virtual bool init();
   void publish(string _topic, string message, mqtt::QoS qos, bool retain);
+  void publishNotification(string message);
+  void publishError(string message);
   void subscribe();
   void setTopic(string _topic);
   string getTopic();
@@ -50,23 +52,9 @@ public:
 
   string getName() const {return name;};
   PROPERTY_TYPE getType() const {return type;};
-  
-  // IotDevice *GetNode() const;
-  // Device *GetDevice() const;
-  // bool HasNewValue();
-  virtual bool Validate(string value);
-  // void ClearError();
-  // void SetError(string code, string message);
-
-  // void SetValue(string value);
-  // void SetHasNewValue(bool has_new_value);
-
-  // virtual void HandleCurrentState();
-  // virtual void HandleSettingNewValue();
 
 protected:
-  // bool has_new_value_ = false;
-
+  virtual bool Validate(string value);
   string name;
   string id;
   PROPERTY_TYPE type;
@@ -81,4 +69,35 @@ protected:
   IotDevice *device = nullptr;
   Node *node = nullptr;
   string topic;
+};
+
+class ButtonNotificationProperty: private Property
+{
+public:
+  ButtonNotificationProperty(string _name, string _id, Node *_node, PROPERTY_TYPE _type, bool _settable, bool _retained,
+           string _data_type, string _format = "", string _unit = "");
+
+  ButtonNotificationProperty(string _name, string _id, IotDevice *_device, PROPERTY_TYPE _type, bool _settable, bool _retained,
+           string _data_type, string _format = "", string _unit = "");
+
+  void setFlag(bool *_flag);
+private:
+  bool *flag = nullptr;
+  bool state = false;
+  void onChange();
+  void read();
+};
+
+class ValidationTestProperty: private Property
+{
+public:
+  ValidationTestProperty(string _name, string _id, Node *_node, PROPERTY_TYPE _type, bool _settable, bool _retained,
+           string _data_type, string _format = "", string _unit = "");
+
+  ValidationTestProperty(string _name, string _id, IotDevice *_device, PROPERTY_TYPE _type, bool _settable, bool _retained,
+           string _data_type, string _format = "", string _unit = "");
+
+  bool Validate(string value) override;
+private:
+  void cMessageReceivedCallback(const string &topicStr, const string &message) override;
 };

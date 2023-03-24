@@ -35,14 +35,20 @@ Property::Property(string _name, string _id, IotDevice *_device, PROPERTY_TYPE _
 
 bool Property::init()
 {
-  printf("calling init property\n");
-  // device->getClient()->usubscribe(topic, static_cast<MqttCaller*>(this), 0);
-  // client->usubscribe(topic, this, 0);
   publish(topic + "$name", name, idf::mqtt::QoS::AtLeastOnce, true);
   publish(topic + "$settable", settable?"true":"false", idf::mqtt::QoS::AtLeastOnce, true);
   publish(topic + "$retained", retained?"true":"false", idf::mqtt::QoS::AtLeastOnce, true);
-  publish(topic + "$datatype", "boolean", idf::mqtt::QoS::AtLeastOnce, true); // iterate over properties to get their list
-  // subscribe();
+  publish(topic + "$datatype", data_type, idf::mqtt::QoS::AtLeastOnce, true);
+  publish(topic + "$format", format, idf::mqtt::QoS::AtLeastOnce, true);
+  publish(topic + "$unit", unit, idf::mqtt::QoS::AtLeastOnce, true);
+  publish(topic, value, idf::mqtt::QoS::AtLeastOnce, true);
+
+
+  if (settable)
+  {
+    printf ("subscribing to %s\n", (topic+"set").c_str());
+    subscribe();
+  }
   return true;
 
 }
@@ -72,12 +78,12 @@ void Property::setTopic(string _topic)
   }
   if (node != nullptr)
   {
-    topic = node->getTopic() + _topic + "/";
+    topic = node->getTopic() + type_for_topic + _topic + "/";
     return;
   }
   if (device != nullptr)
   {
-    topic = device->getMainTopic() + _topic + "/";
+    topic = device->getMainTopic() + type_for_topic + _topic + "/";
     return;
   }
 }
@@ -88,16 +94,14 @@ string Property::getTopic()
 }
 void Property::subscribe()
 {
-  // if (node!=NULL)
-  // {
-  //   topic = node->subscribe() + _topic + "/";
-  //   return;
-  // }
-  // if (device!=NULL)
-  // {
-  //   topic = device->getMainTopic() + _topic + "/";
-  //   return;
-  // }
+  if (node!=nullptr)
+  {
+    node->getDevice()->getClient()->usubscribe(topic+"set", this, 1);
+  }
+  if (device!=nullptr)
+  {
+    device->getClient()->usubscribe(topic+"set", this, 0);
+  }
 }
 
 void Property::publish(string _topic, string message, mqtt::QoS qos, bool retain)
@@ -114,30 +118,129 @@ void Property::publish(string _topic, string message, mqtt::QoS qos, bool retain
   }
 }
 
+void Property::publishError(string message)
+{
+  if (node != nullptr)
+  {
+    string topic_ext = node->getName()+"/"+name;
+    node->getDevice()->publishError(message, topic_ext);
+    return;
+  }
+  if (device != nullptr)
+  {
+    string topic_ext = name;
+    device->publishError(message, topic_ext);
+    return;
+  }
+}
+
+void Property::publishNotification( string message)
+{
+  if (node != nullptr)
+  {
+    node->getDevice()->publishNotification(message);
+    return;
+  }
+  if (device != nullptr)
+  {
+    device->publishNotification(message);
+    return;
+  }
+}
+
 void Property::read()
 {
+  // read sensor values priodically if needed
 }
 
 void Property::cMessageReceivedCallback(const string &topicStr, const string &message)
 {
+  printf("%s set to: %s\n", name.c_str() ,message.c_str());
+  // validate input
+  // execute action on command
+  // publish to topic to confirm setting attribute
 }
 
 bool Property::Validate(string value)
 {
-  // printf("Validate inreger: %s \n", value.c_str());
+  // here goes your validation code
+  // in case of error call publishError(<your errormessage>)
+  return false;
+}
 
-  // for (int i = 0; i < value.length(); i++)
-  // {
-  //   if (isdigit(value[i]) == false)
-  //   {
-  //     // SetError(E_C_WRONG_FORMAT, E_M_WRONG_FORMAT);
-  //     return false;
-  //   }
-  // }
-  // if ((int)value > 3)
-  //   {
-  //     // SetError(E_C_WRONG_FORMAT, E_M_INVALID_INTERVAL);
-  //     return false;
-  //   }
+
+//// Validation property
+
+ButtonNotificationProperty::ButtonNotificationProperty(string _name, string _id, Node *_node, PROPERTY_TYPE _type, bool _settable, bool _retained,
+           string _data_type, string _format, string _unit):Property(_name,_id, _node, _type, _settable, _retained, _data_type, _format, _unit)
+{}
+
+ButtonNotificationProperty::ButtonNotificationProperty(string _name, string _id, IotDevice *_device, PROPERTY_TYPE _type, bool _settable, bool _retained,
+           string _data_type, string _format, string _unit):Property(_name,_id, _device, _type, _settable, _retained, _data_type, _format, _unit)
+{}
+
+void ButtonNotificationProperty::setFlag(bool *_flag)
+{
+  flag = _flag;
+}
+
+void ButtonNotificationProperty::onChange()
+{
+  state = !state;
+  publish(topic, state?"true":"false", idf::mqtt::QoS::AtLeastOnce, true);
+  publishNotification("Toggle button state: "+string{state?"ON":"OFF"});
+}
+
+void ButtonNotificationProperty::read()
+{
+  if (*flag)
+  {
+  (*flag) = false;
+  onChange();
+  }
+}
+
+//// Validation property
+
+ValidationTestProperty::ValidationTestProperty(string _name, string _id, Node *_node, PROPERTY_TYPE _type, bool _settable, bool _retained,
+           string _data_type, string _format, string _unit):Property(_name,_id, _node, _type, _settable, _retained, _data_type, _format, _unit)
+{}
+
+  // ----------------------------Constructor for Device`s properties
+ValidationTestProperty::ValidationTestProperty(string _name, string _id, IotDevice *_device, PROPERTY_TYPE _type, bool _settable, bool _retained,
+           string _data_type, string _format, string _unit):Property(_name,_id, _device, _type, _settable, _retained, _data_type, _format, _unit)
+{}
+
+
+bool ValidationTestProperty::Validate(string value)
+{
+  printf("Validate integer: %s \n", value.c_str());
+  for (int i = 0; i < value.length(); i++)
+  {
+    if (isdigit(value[i]) == false)
+    {
+      publishError("Not integer");
+      return false;
+    }
+  }
+  if (std::stoi( value ) > 3)
+    {
+      publishError("Value must be less than 3");
+      return false;
+    }
+  if (std::stoi( value ) < 0)
+    {
+      publishError("Value must be greater than 0");
+      return false;
+    }
   return true;
 }
+
+void ValidationTestProperty::cMessageReceivedCallback(const string &topicStr, const string &message)
+{
+    if (Validate(message))
+    {
+      publish(topic, message, idf::mqtt::QoS::AtLeastOnce, true);
+    }
+}
+

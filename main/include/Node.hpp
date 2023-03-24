@@ -21,7 +21,7 @@ class Node: public MqttCaller
 protected:
   IotDevice *device;
   string name;
-  string state;
+  string state = "ready";
   string type;
   string topic;
   void storeSettings();

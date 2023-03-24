@@ -38,7 +38,7 @@ void IotDevice::cOnConnectCallback()
   publish(mainTopic+"$name", device_name, idf::mqtt::QoS::AtLeastOnce, true);
   publish(mainTopic+"$fw/name", fw_name, idf::mqtt::QoS::AtLeastOnce, true);
   publish(mainTopic+"$fw/version", fw_version, idf::mqtt::QoS::AtLeastOnce, true);
-  // client.upublish(main_topic+'$localip', "192.168.1.52", idf::mqtt::QoS::AtLeastOnce, true);
+  publish(mainTopic+"$localip", "192.168.1.52", idf::mqtt::QoS::AtLeastOnce, true);
   publish(mainTopic+"$implementation", implementation, idf::mqtt::QoS::AtLeastOnce, true);
   publish(mainTopic+"$mac", mac_adress, idf::mqtt::QoS::AtLeastOnce, true);
   publish(mainTopic+"$state", "ready", idf::mqtt::QoS::AtLeastOnce, true);
@@ -70,7 +70,11 @@ void IotDevice::cOnConnectCallback()
   string nodes_string = "";
   for (Node* node: nodes)
   {
-    nodes_string += node->getName()+",";
+    if (nodes_string.size()>0)
+    {
+      nodes_string+=", ";
+    }
+    nodes_string += node->getName();
   }
   publish(mainTopic+"$nodes", nodes_string, idf::mqtt::QoS::AtLeastOnce, true);
   for (Node* node: nodes)
@@ -87,7 +91,11 @@ string IotDevice::getPropertyString(const std::vector <Property*> &props)
   {
   for (Property* property: props)
   {
-    prop_string += property->getName()+",";
+    if (prop_string.size()>0)
+    {
+      prop_string+=", ";
+    }
+    prop_string += property->getName();
   }
   }
   return prop_string;
@@ -102,23 +110,46 @@ void IotDevice::publish(string topic, string message, idf::mqtt::QoS qos, bool r
   client.upublish(topic, message, qos, retain);
 }
 
-void IotDevice::publishError(string message)
+void IotDevice::publishError(string message, string topic_ext)
 {
-  client.upublish(errorTopic, message, idf::mqtt::QoS::AtLeastOnce, false);
+    char str[300];
+  sprintf(str,
+"{\"fields\":{},\
+\"code\":\"ERROR\",\
+\"message\":\"%s\"}", message.c_str());
+  string error_json = (str);
+  publish(errorTopic+topic_ext, error_json, idf::mqtt::QoS::AtLeastOnce, false);
 }
 
 void IotDevice::publishNotification(string message)
 {
-  client.upublish(notificationTopic, message, idf::mqtt::QoS::AtLeastOnce, false);
+  char str[300];
+  sprintf(str,
+"{\"type\":\"text\",\
+\"senderType\":\"device\",\
+\"senderId\":\"%s\",\
+\"logLevel\":\"info\",\
+\"message\":\"%s\"}", device_id.c_str(), message.c_str());
+  string notification_json = (str);
+  publish(notificationTopic, notification_json, idf::mqtt::QoS::AtLeastOnce, false);
 }
 
 
 void IotDevice::process()
 {
-  printf("ping broker and reading input\n");
-  client.upublish(mainTopic+"$heartbeat", "ping", idf::mqtt::QoS::AtLeastOnce, false);
+  if (connected_flag)
+  {
   for (Node* node: nodes)
   {
     node->read();
+  }
+  }
+}
+
+void IotDevice::heartbeat()
+{
+  if (connected_flag)
+  {
+  client.upublish(mainTopic+"$heartbeat", "ping", idf::mqtt::QoS::AtLeastOnce, false);
   }
 }

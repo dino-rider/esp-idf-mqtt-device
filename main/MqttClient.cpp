@@ -3,6 +3,7 @@
 void MyClient::usubscribe(const string topicStr, MqttCaller* caller, int qos)
 {
     mqtt::Filter f{topicStr.c_str()};
+    printf("subscribing to topic: %s\n", f.get().c_str());
     subscribe(f.get()); // add qos later if necessary
     topic_callbacks[topicStr] = caller;
 }
@@ -12,6 +13,12 @@ void MyClient::upublish(const string &topicStr,  const string &message, mqtt::Qo
     printf("Publishing -- Topic: %s, Message: %s \n", topicStr.c_str(), message.c_str());
     publish<string>(topicStr, mqtt::Message<string>{message , qos , retain ? mqtt::Retain::Retained : mqtt::Retain::NotRetained});
 }
+
+void MyClient::clean_subscriptions()
+{
+    topic_callbacks.clear();
+}
+
 
 void MyClient::on_connected(esp_mqtt_event_handle_t const event)
     {
@@ -37,4 +44,5 @@ void MyClient::on_data(esp_mqtt_event_handle_t const event)
 void MyClient::on_disconnected(esp_mqtt_event_handle_t const event)
     {
         connected_flag = false;
+        clean_subscriptions();
     }

@@ -30,4 +30,27 @@ menu "MQTT TEST SETUP"
         help
             Device ID from connection Info
 
+    config MQTT_DEVICE_NAME
+        string "Device name"
+        default "mqtt-device-name"
+        help
+            Device ID from connection Info
+
+    config MQTT_FW_NAME
+        string "Firmware name"
+        default "mqtt-device-fw-name"
+        help
+            Device ID from connection Info
+
+    config MQTT_FW_VERSION
+        string "Firmware version"
+        default "mqtt-device-fw-ver"
+        help
+            Device ID from connection Info
+
+    config MQTT_IMPLEMENTATION
+        string "Implementation"
+        default "mqtt-device-implementation"
+        help
+            Device ID from connection Info
 endmenu

@@ -56,7 +56,11 @@ string Node::getPropertyString(const std::vector <Property*> &props)
   {
   for (Property* property: props)
   {
-    prop_string += property->getName()+",";
+    if (prop_string.size()>0)
+    {
+      prop_string+=", ";
+    }
+    prop_string += property->getName();
   }
   }
   return prop_string;
@@ -98,7 +102,18 @@ void Node::readSettings()
 
 void Node::read()
 {
-
+  for (Property* prop: properties)
+  {
+    prop->read();
+  }
+  for (Property* prop: options)
+  {
+    prop->read();
+  }
+  for (Property* prop: telemetry)
+  {
+    prop->read();
+  }
 }
 
 void Node::setTopic(string _topic)

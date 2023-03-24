@@ -18,8 +18,8 @@ class IotDevice: public MqttCaller
 {
 private:
   string mainTopic = std::string{CONFIG_MQTT_USERNAME}+"/sweet-home/"+std::string{CONFIG_MQTT_DEVICE_ID}+"/";
-  string errorTopic = std::string{CONFIG_MQTT_USERNAME}+"/errors";
-  string notificationTopic = std::string{CONFIG_MQTT_USERNAME}+"/notifications";
+  string errorTopic = std::string{CONFIG_MQTT_USERNAME}+"/errors/";
+  string notificationTopic = std::string{CONFIG_MQTT_USERNAME}+"/notifications/create";
   string getPropertyString(const std::vector <Property*> &props);
   MyClient &client;
   std::vector< Node* > nodes;
@@ -28,11 +28,12 @@ private:
   std::vector< Property* > telemetry;
 
 public:
-  string device_name = "Test device";
-  string fw_name = "1678446122462726";
-  string fw_version = "1";
-  string implementation = "Test device";
-  string mac_adress = "30-b8-3d-01-f6-7f";
+  string device_name = string{CONFIG_MQTT_DEVICE_NAME}; //"Test device"; // mmove to config
+  string device_id = string{CONFIG_MQTT_DEVICE_ID};
+  string fw_name =string{CONFIG_MQTT_FW_NAME}; //"1678446122462726"; // mmove to config
+  string fw_version =string{CONFIG_MQTT_FW_VERSION}; //"1"; // move to config
+  string implementation =string{CONFIG_MQTT_IMPLEMENTATION};//"Test device"; // move to config
+  string mac_adress = "30-b8-3d-01-f6-7f"; // get from wifi
   IotDevice(MyClient &_client);
   MyClient* getClient(){return &client;};
   void addNode(Node *_node);
@@ -40,8 +41,9 @@ public:
   void cOnConnectCallback();
   void cMessageReceivedCallback(const string &topicStr, const string &message);
   void publish(string topic, string message, idf::mqtt::QoS qos, bool retain);
-  void publishError(string message);
+  void publishError(string message, string topic_ext);
   void publishNotification(string message);
+  void heartbeat();
   void process();
   int  getStatus();
   string getMainTopic(){return mainTopic;};
