@@ -17,8 +17,8 @@ class Property;
 class IotDevice: public MqttCaller
 {
 private:
-  string mainTopic = std::string{CONFIG_MQTT_USERNAME}+"/sweet-home/"+std::string{CONFIG_MQTT_DEVICE_ID}+"/";
-  string errorTopic = std::string{CONFIG_MQTT_USERNAME}+"/errors/";
+  string mainTopic = std::string{CONFIG_MQTT_USERNAME}+"/sweet-home/"+string{CONFIG_MQTT_DEVICE_ID}+"/";
+  string errorTopic = std::string{CONFIG_MQTT_USERNAME}+"/errors/sweet-home/"+string{CONFIG_MQTT_DEVICE_ID}+"/";
   string notificationTopic = std::string{CONFIG_MQTT_USERNAME}+"/notifications/create";
   string getPropertyString(const std::vector <Property*> &props);
   MyClient &client;

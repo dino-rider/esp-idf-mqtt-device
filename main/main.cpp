@@ -113,9 +113,9 @@ extern "C" void app_main(void)
 
   MyClient* client = new MyClient(broker, credentials, config);
   IotDevice device {(*client)};
-  Property* test_property = new Property("test_property","prop_id", &device, OPTION, true, true, "integer", "");
+  Property* test_property = new Property("test-property","prop_id", &device, OPTION, true, true, "integer", "");
 
-  Node* test_node =  new Node{&device, "test_node", "sensor"};
+  Node* test_node =  new Node{&device, "test-node", "sensor"};
   ButtonNotificationProperty* button = new ButtonNotificationProperty("button","button_id", test_node, SENSOR, false, true, "boolean", "");
   button->setFlag(&button_flag);
   ValidationTestProperty* validation_test = new ValidationTestProperty("validate","validate_id", test_node, SENSOR, true, true, "integer", "1:3");

@@ -35,18 +35,18 @@ Property::Property(string _name, string _id, IotDevice *_device, PROPERTY_TYPE _
 
 bool Property::init()
 {
-  publish(topic + "$name", name, idf::mqtt::QoS::AtLeastOnce, true);
-  publish(topic + "$settable", settable?"true":"false", idf::mqtt::QoS::AtLeastOnce, true);
-  publish(topic + "$retained", retained?"true":"false", idf::mqtt::QoS::AtLeastOnce, true);
-  publish(topic + "$datatype", data_type, idf::mqtt::QoS::AtLeastOnce, true);
-  publish(topic + "$format", format, idf::mqtt::QoS::AtLeastOnce, true);
-  publish(topic + "$unit", unit, idf::mqtt::QoS::AtLeastOnce, true);
+  publish(topic + "/$name", name, idf::mqtt::QoS::AtLeastOnce, true);
+  publish(topic + "/$settable", settable?"true":"false", idf::mqtt::QoS::AtLeastOnce, true);
+  publish(topic + "/$retained", retained?"true":"false", idf::mqtt::QoS::AtLeastOnce, true);
+  publish(topic + "/$datatype", data_type, idf::mqtt::QoS::AtLeastOnce, true);
+  publish(topic + "/$format", format, idf::mqtt::QoS::AtLeastOnce, true);
+  publish(topic + "/$unit", unit, idf::mqtt::QoS::AtLeastOnce, true);
   publish(topic, value, idf::mqtt::QoS::AtLeastOnce, true);
 
 
   if (settable)
   {
-    printf ("subscribing to %s\n", (topic+"set").c_str());
+    printf ("subscribing to %s\n", (topic+"/set").c_str());
     subscribe();
   }
   return true;
@@ -78,12 +78,12 @@ void Property::setTopic(string _topic)
   }
   if (node != nullptr)
   {
-    topic = node->getTopic() + type_for_topic + _topic + "/";
+    topic = node->getTopic() + type_for_topic + _topic;
     return;
   }
   if (device != nullptr)
   {
-    topic = device->getMainTopic() + type_for_topic + _topic + "/";
+    topic = device->getMainTopic() + type_for_topic + _topic;
     return;
   }
 }
@@ -96,11 +96,11 @@ void Property::subscribe()
 {
   if (node!=nullptr)
   {
-    node->getDevice()->getClient()->usubscribe(topic+"set", this, 1);
+    node->getDevice()->getClient()->usubscribe(topic+"/set", this, 1);
   }
   if (device!=nullptr)
   {
-    device->getClient()->usubscribe(topic+"set", this, 0);
+    device->getClient()->usubscribe(topic+"/set", this, 0);
   }
 }
 
